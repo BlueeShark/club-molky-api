@@ -4,10 +4,11 @@ const apiRoutes = require("./routes/api");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const REACT_URL = process.env.REACT_URL || "http://localhost:5173";
 
 // CORS configuration
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: REACT_URL,
   credentials: true,
   optionsSuccessStatus: 200,
 };
