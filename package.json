@@ -1,0 +1,29 @@
+{
+  "name": "club-molky-api",
+  "version": "1.0.0",
+  "description": "WorkShop Crazy dev - api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlueeShark/club-molky-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BlueeShark/club-molky-api/issues"
+  },
+  "homepage": "https://github.com/BlueeShark/club-molky-api#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
