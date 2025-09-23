@@ -1,0 +1,79 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [deploy]
+
+env:
+  AZURE_WEBAPP_NAME: "app-${{ vars.PROJECT_NAME }}-dev"
+  AZURE_WEBAPP_PACKAGE_PATH: "."
+  NODE_VERSION: "18.x" # Ou la version que vous utilisez
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
+
+      # Pour Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build application
+        run: npm run build
+
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+
+      # Configuration des variables d'environnement
+      - name: Set App Settings
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          app-settings-json: |
+            [
+              {
+                "name": "NODE_ENV",
+                "value": "production"
+              },
+              {
+                "name": "API_VERSION",
+                "value": "${{ github.sha }}"
+              }
+            ]
+
+      - name: Restart App Service
+        run: |
+          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group rg-${{ vars.PROJECT_NAME }}-dev
+
+  # Health check après déploiement
+  health-check:
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+
+    steps:
+      - name: Health Check
+        run: |
+          sleep 30  # Attendre que l'app redémarre
+          curl -f https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health || exit 1
