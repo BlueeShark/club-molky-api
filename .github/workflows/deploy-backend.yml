@@ -11,6 +11,7 @@ env:
   AZURE_WEBAPP_NAME: "app-club-molky-prod-backend"
   AZURE_WEBAPP_PACKAGE_PATH: "."
   NODE_VERSION: "22.19.0"
+  RESOURCE_GROUP: "rg-club-molky-prod"
 
 jobs:
   build-and-deploy:
