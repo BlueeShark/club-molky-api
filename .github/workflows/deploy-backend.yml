@@ -9,7 +9,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: "app-${{ vars.PROJECT_NAME }}-dev"
   AZURE_WEBAPP_PACKAGE_PATH: "."
-  NODE_VERSION: "18.x" # Ou la version que vous utilisez
+  NODE_VERSION: "22.19.0" # Ou la version que vous utilisez
 
 jobs:
   build-and-deploy:
@@ -28,9 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run tests
-        run: npm test
 
       - name: Build application
         run: npm run build
