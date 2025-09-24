@@ -30,11 +30,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build application
-        run: npm run build
+      - name: Build application (if needed)
+        run: |
+          if [ -f "package.json" ] && grep -q '"build"' package.json; then
+            npm run build
+          else
+            echo "No build script found, skipping build step"
+          fi
 
       - name: Login to Azure
-        uses: azure/login@v1 # ✨ Retour à v1
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -55,7 +60,7 @@ jobs:
                 "value": "production"
               },
               {
-                "name": "API_VERSION", 
+                "name": "API_VERSION",
                 "value": "${{ github.sha }}"
               },
               {
@@ -66,4 +71,4 @@ jobs:
 
       - name: Restart App Service
         run: |
-          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group rg-${{ vars.PROJECT_NAME }}-dev
+          az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}
