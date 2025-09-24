@@ -1,4 +1,5 @@
 const express = require("express");
+const { supabase } = require("../config/supabase");
 const router = express.Router();
 
 router.get("/hello", (req, res) => {
@@ -11,12 +12,23 @@ router.get("/hello", (req, res) => {
   });
 });
 
-router.get("/hello/:name", (req, res) => {
-  const { name } = req.params;
-  res.json({
-    message: `Hello ${name}!`,
-    greeting: `Bienvenue ${name} sur notre API`,
-  });
+router.get("/activities", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from("activities").select("*");
+
+    if (error) throw error;
+
+    res.json({
+      success: true,
+      count: data.length,
+      data: data,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;
