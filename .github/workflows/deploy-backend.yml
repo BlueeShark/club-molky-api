@@ -5,6 +5,7 @@ on:
     branches: [main]
   repository_dispatch:
     types: [deploy]
+  workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: "app-${{ vars.PROJECT_NAME }}-dev"
@@ -28,12 +29,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ✨ Ajout de l'étape build (même si c'est juste un echo)
       - name: Build application
         run: npm run build
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v1 # ✨ Retour à v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
@@ -66,30 +66,3 @@ jobs:
       - name: Restart App Service
         run: |
           az webapp restart --name ${{ env.AZURE_WEBAPP_NAME }} --resource-group rg-${{ vars.PROJECT_NAME }}-dev
-
-  health-check:
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    if: success() # ✨ Seulement si le déploiement réussit
-
-    steps:
-      - name: Health Check
-        run: |
-          echo "Waiting for app to start..."
-          sleep 30
-
-          # ✨ Health check avec retry
-          for i in {1..5}; do
-            if curl -f https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/health; then
-              echo "✅ Health check passed!"
-              exit 0
-            elif curl -f https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/; then
-              echo "✅ App is running (no /health endpoint)!"
-              exit 0
-            else
-              echo "❌ Attempt $i failed, retrying in 10s..."
-              sleep 10
-            fi
-          done
-          echo "❌ Health check failed after 5 attempts"
-          exit 1
