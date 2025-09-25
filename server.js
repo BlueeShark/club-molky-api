@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 8000;
 const corsOptions = {
   origin: [
     process.env.FRONTEND_URL,
-    "https://*.azurestaticapps.net",
+    "https://white-meadow-0e7c1a903.1.azurestaticapps.net",
     "http://localhost:5173",
   ],
   credentials: true,
@@ -19,12 +19,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// Routes test
-app.get("/api/health", (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
     status: "OK",
     environment: process.env.NODE_ENV,
     timestamp: new Date().toISOString(),
+    frontend_url: process.env.FRONTEND_URL,
+    origin: req.headers.origin,
   });
 });
 
