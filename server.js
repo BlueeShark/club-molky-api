@@ -3,7 +3,7 @@ const cors = require("cors");
 const apiRoutes = require("./routes/api");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
 const REACT_URL = process.env.REACT_URL || "http://localhost:5173";
 
 // CORS configuration
@@ -23,6 +23,6 @@ app.get("/", (req, res) => {
 
 app.use("/api", apiRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
 });
