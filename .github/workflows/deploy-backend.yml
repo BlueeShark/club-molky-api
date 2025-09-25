@@ -9,7 +9,6 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: "app-club-molky-prod-backend"
-  AZURE_WEBAPP_PACKAGE_PATH: "."
   NODE_VERSION: "20.x"
   RESOURCE_GROUP: "rg-club-molky-prod"
 
@@ -38,6 +37,22 @@ jobs:
             echo "No build script found, skipping build step"
           fi
 
+      - name: Create deployment package
+        run: |
+          # Créer le ZIP en excluant les fichiers inutiles
+          zip -r deployment.zip . \
+            -x "*.git*" \
+            -x ".github/*" \
+            -x "README.md" \
+            -x "*.log" \
+            -x ".env*" \
+            -x "coverage/*" \
+            -x "test/*" \
+            -x "tests/*"
+          
+          # Vérifier que le ZIP a été créé
+          ls -la deployment.zip
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -48,7 +63,7 @@ jobs:
           az webapp deploy \
             --resource-group ${{ env.RESOURCE_GROUP }} \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
-            --src-path . \
+            --src-path deployment.zip \
             --type zip \
             --async false
 
